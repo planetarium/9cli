@@ -39,7 +39,11 @@ class Program
         await DoFaucetCurrency(pk);
 
         Console.WriteLine("Your agent status:");
-        var _ = GameAction.GetStatus(pk);
+        var _ = await GameAction.GetStatus(pk);
+        while (true)
+        {
+            await DoAction(pk, (Libplanet.Address)avatarAddress);
+        }
     }
 
     static async Task DoFaucetCurrency(PrivateKey pk)
@@ -77,5 +81,35 @@ class Program
             Console.WriteLine("We'll give 10K NCG and 1M Crystal to your address");
             var faucetResult = await Address.FaucetCurrency(pk);
         }
+    }
+
+    static async Task DoFaucetRune(PrivateKey pk, Libplanet.Address avatarAddress)
+    {
+    }
+
+    static async Task DoAction(PrivateKey pk, Libplanet.Address avatarAddress)
+    {
+        var availableActionList = typeof(GameAction).GetMethods();
+        Console.WriteLine("Please select action to do");
+        Console.WriteLine("0: Quit");
+        for (var i = 0; i < availableActionList.Length; i++)
+        {
+            if (availableActionList[i].ReturnType.ToString().Contains("Task"))
+            {
+                Console.WriteLine($"{i + 1}: {availableActionList[i].Name}");
+            }
+        }
+
+        var actionIndex = Util.Select(availableActionList);
+        if (actionIndex == 0)
+        {
+            Console.WriteLine("Exiting...");
+            Environment.Exit(0);
+        }
+
+        Task<bool> result = (Task<bool>)availableActionList[actionIndex - 1]
+            .Invoke(availableActionList[actionIndex], new[] { pk, });
+        await result;
+        Thread.Sleep(1500);
     }
 }
