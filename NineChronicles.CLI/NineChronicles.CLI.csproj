@@ -7,4 +7,11 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+        <PackageReference Include="GraphQL" Version="4.7.1"/>
+        <PackageReference Include="GraphQL.Client" Version="5.1.0"/>
+        <PackageReference Include="GraphQL.Client.Serializer.SystemTextJson" Version="5.1.0"/>
+        <PackageReference Include="Libplanet" Version="0.45.3"/>
+    </ItemGroup>
+    
 </Project>
