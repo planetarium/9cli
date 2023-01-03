@@ -28,5 +28,15 @@ class Program
                 Console.WriteLine("Account activation failed. Please try with another activation code");
             }
         }
+
+        var avatarAddress = await Avatar.SelectAvatar(pk);
+        if (avatarAddress is null)
+        {
+            Console.WriteLine("No avatar selected. Exiting...");
+            return;
+        }
+
+        Console.WriteLine("Your agent status:");
+        var _ = GameAction.GetStatus(pk);
     }
 }
