@@ -83,4 +83,39 @@ public static class Address
             }
         }
     }
+
+    public static async Task<bool> FaucetCurrency(PrivateKey pk, int faucetNcg = 10_000, int faucetCrystal = 1_000_000)
+    {
+        var query = $@"faucetCurrency(
+            agentAddress: ""{pk.ToAddress()}"",
+            faucetNcg: {faucetNcg},
+            faucetCrystal: {faucetCrystal}
+        )";
+        Console.WriteLine(query);
+        (bool success, ActionTxQueryResponseType data, GraphQLError[]? errors) = await Graphql.Action(pk, query);
+        if (!success)
+        {
+            Console.WriteLine("Faucet action failed");
+            return false;
+        }
+
+        var tx = ByteUtil.ParseHex(data.ActionTxQuery.FaucetCurrency);
+        var signature = pk.Sign(tx);
+        (bool result, string txId) = await Graphql.Stage(tx, signature);
+        if (!result)
+        {
+            Console.WriteLine("Faucet Failed. Try again later.");
+            return false;
+        }
+
+        var txResult = await Graphql.WaitTxMining(txId);
+        if (txResult == "SUCCESS")
+        {
+            Console.WriteLine("Faucet Done.");
+            return true;
+        }
+
+        Console.WriteLine($"Faucet {txId} Failed: {txResult}. Try again later.");
+        return false;
+    }
 }

@@ -36,7 +36,46 @@ class Program
             return;
         }
 
+        await DoFaucetCurrency(pk);
+
         Console.WriteLine("Your agent status:");
         var _ = GameAction.GetStatus(pk);
+    }
+
+    static async Task DoFaucetCurrency(PrivateKey pk)
+    {
+        Console.WriteLine("You can add NCG, Crystal to your address. Use faucet? [y/N]");
+        var useFaucet = Console.ReadLine();
+        bool faucet = false;
+        bool valid = false;
+        while (!valid)
+        {
+            if (useFaucet is "" or null)
+            {
+                useFaucet = "";
+                valid = true;
+            }
+
+            if (!new[] { "y", "Y", "n", "N", "" }.Contains(useFaucet))
+            {
+                Console.Write("Select only Y or N [y/N]: ");
+                useFaucet = Console.ReadLine();
+            }
+            else
+            {
+                valid = true;
+                if (new[] { "y", "Y" }.Contains(useFaucet))
+                {
+                    faucet = true;
+                    break;
+                }
+            }
+        }
+
+        if (faucet)
+        {
+            Console.WriteLine("We'll give 10K NCG and 1M Crystal to your address");
+            var faucetResult = await Address.FaucetCurrency(pk);
+        }
     }
 }
